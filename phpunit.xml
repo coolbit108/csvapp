@@ -1,0 +1,26 @@
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         verbose="true">
+
+    <!-- ... Other configurations ... -->
+
+    <!-- Add the test suite for ProcessCSVTest -->
+    <testsuites>
+        <testsuite name="Feature">
+            <directory suffix="Test.php">./tests/Feature</directory>
+        </testsuite>
+        <testsuite name="Unit">
+            <directory suffix="Test.php">./tests/Unit</directory>
+        </testsuite>
+
+        <!-- Add the test suite for ProcessCSVTest -->
+        <testsuite name="ProcessCSV">
+            <directory suffix="Test.php">./tests/Unit/Console/Commands</directory>
+        </testsuite>
+    </testsuites>
+
+    <!-- ... Other configurations ... -->
+
+</phpunit>
