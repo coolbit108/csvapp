@@ -27,6 +27,7 @@ The command mounts the current directory ($(pwd)) into the container at /var/www
 The output will be displayed in the terminal.
 
 ##TESTS
+
 1.To run the PHPUnit tests inside the Docker container, execute the following command:
 ```docker run -it --rm -v $(pwd):/var/www/html mylaravelapp /bin/bash```
 2.Inside the container, navigate to the Laravel project directory:
