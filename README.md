@@ -30,8 +30,10 @@ The output will be displayed in the terminal.
 
 1.To run the PHPUnit tests inside the Docker container, execute the following command:
 ```docker run -it --rm -v $(pwd):/var/www/html mylaravelapp /bin/bash```
+
 2.Inside the container, navigate to the Laravel project directory:
 ``cd /var/www/html``
+
 3.Run the PHPUnit tests using the php artisan test command:
 ``php artisan test``
 # csvapp
