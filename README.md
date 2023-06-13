@@ -26,7 +26,7 @@ This repository contains a Laravel `ProcessCSV` command that processes a CSV fil
 The command mounts the current directory ($(pwd)) into the container at /var/www/html and runs the ProcessCSV command on the specified CSV file.
 The output will be displayed in the terminal.
 
-##TESTS
+## Tests
 
 1.To run the PHPUnit tests inside the Docker container, execute the following command:
 ```docker run -it --rm -v $(pwd):/var/www/html mylaravelapp /bin/bash```
