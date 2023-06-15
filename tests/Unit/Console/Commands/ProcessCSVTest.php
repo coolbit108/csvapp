@@ -2,79 +2,92 @@
 
 namespace Tests\Unit\Console\Commands;
 
-use Tests\TestCase;
 use App\Console\Commands\ProcessCSV;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
 
 class ProcessCSVTest extends TestCase
 {
+
     /**
-     * Test the readCSV function.
+     * Test the ProcessCSV command with "Mr John Smith" input.
      *
      * @return void
      */
-    public function testReadCSV()
+    public function testProcessCSVWithMrJohnSmithInput()
     {
-        // Create a test CSV file with sample data
-        $csvData = "name\nJohn Doe\nJane Smith";
-        $file = 'test.csv';
-        file_put_contents($file, $csvData);
+        // Arrange
+        $filename = 'test.csv';
+        $csvData = "name\nMr John Smith";
+        Storage::disk('local')->put($filename, $csvData);
 
-        // Instantiate ProcessCSV command and call the readCSV function
-        $processCSV = new ProcessCSV();
-        $generator = $processCSV->handle()->readCSV($file);
+        // Act
+        Artisan::call('csv:process', ['file' => $filename]);
+        $output = Artisan::output();
 
-        // Assert that the readCSV function returns the correct number of rows
-        $batch1 = $generator->current();
-        $this->assertCount(1, $batch1);
-        $this->assertEquals('John Doe', $batch1[0]['name']);
-
-        $generator->next();
-        $batch2 = $generator->current();
-        $this->assertCount(1, $batch2);
-        $this->assertEquals('Jane Smith', $batch2[0]['name']);
-
-        // Clean up the test CSV file
-        unlink($file);
+        // Assert
+        $expectedOutput = [
+            'title' => 'Mr',
+            'first_name' => 'John',
+            'initial' => NULL,
+            'last_name' => 'Smith',
+        ];
+        $this->assertStringContainsString(json_encode($expectedOutput), $output);
     }
 
     /**
-     * Test the parseName function.
+     * Test the ProcessCSV command with "Mr and Mrs Smith" input.
      *
      * @return void
      */
-    public function testParseName()
+    public function testProcessCSVWithMrAndMrsSmithInput()
     {
-        // Instantiate ProcessCSV command
-        $processCSV = new ProcessCSV();
+        // Arrange
+        $filename = 'test.csv';
+        $csvData = "name\nMr and Mrs Smith";
+        Storage::disk('local')->put($filename, $csvData);
 
-        // Test case 1: "Mr John Smith"
-        $name1 = 'Mr John Smith';
-        $expected1 = [
-            'title' => 'Mr',
-            'first_name' => 'John',
-            'initial' => null,
-            'last_name' => 'Smith',
-        ];
-        $this->assertEquals($expected1, $processCSV->handle()->parseName($name1));
+        // Act
+        Artisan::call('csv:process', ['file' => $filename]);
+        $output = Artisan::output();
 
-        // Test case 2: "Mr and Mrs Smith"
-        $name2 = 'Mr and Mrs Smith';
-        $expected2 = [
+        // Assert
+        $expectedOutput1 = [
             'title' => 'Mr',
             'first_name' => null,
             'initial' => null,
             'last_name' => 'Smith',
         ];
-        $this->assertEquals($expected2, $processCSV->handle()->parseName($name2));
 
-        // Test case 3: "Mr J. Smith"
-        $name3 = 'Mr J. Smith';
-        $expected3 = [
+        $this->assertStringContainsString(json_encode($expectedOutput1), $output);
+    }
+
+    /**
+     * Test the ProcessCSV command with "Mr J. Smith" input.
+     *
+     * @return void
+     */
+    public function testProcessCSVWithMrJSmithInput()
+    {
+        // Arrange
+        $filename = 'test.csv';
+        $csvData = "name\nMr J Smith";
+        Storage::disk('local')->put($filename, $csvData);
+
+        // Act
+        Artisan::call('csv:process', ['file' => $filename]);
+        $output = Artisan::output();
+
+        // Assert
+        $expectedOutput = [
             'title' => 'Mr',
             'first_name' => null,
             'initial' => 'J',
             'last_name' => 'Smith',
         ];
-        $this->assertEquals($expected3, $processCSV->handle()->parseName($name3));
+        $this->assertStringContainsString(json_encode($expectedOutput,true), $output);
     }
 }

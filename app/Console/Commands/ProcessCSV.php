@@ -36,7 +36,7 @@ class ProcessCSV extends Command
     public function handle()
     {
         $file = $this->argument('file');
-        $handle = fopen(storage_path("app/{$file}"), 'b');
+        $handle = fopen(storage_path("app/{$file}"), 'r');
 
         $headers = fgetcsv($handle);
         $people = [];
@@ -72,7 +72,7 @@ class ProcessCSV extends Command
     private function outputBatch(array $people)
     {
         foreach ($people as $person) {
-            $this->output->writeln(json_encode($person, JSON_PRETTY_PRINT));
+            $this->line(json_encode($person));
         }
     }
 
@@ -93,21 +93,31 @@ class ProcessCSV extends Command
 
         $nameParts = explode(' ', $name);
         $numParts = count($nameParts);
+       // dd($nameParts);
 
-        if ($numParts >= 1) {
-            $person['title'] = $nameParts[0];
-        }
-        if ($numParts >= 2) {
-            $person['first_name'] = $nameParts[1];
-        }
-        if ($numParts >= 3) {
-            if (strlen($nameParts[1]) === 2 && $nameParts[1][1] === '.') {
-                $person['initial'] = $nameParts[1][0];
-                $person['last_name'] = $nameParts[2];
-            } else {
-                $person['last_name'] = $nameParts[2];
+        $person['title'] = $nameParts[0];
+
+        if ($numParts >= 2 && $numParts < 4) {
+            // Check if the second part is "and" or "&"
+            if (!in_array(strtolower($nameParts[1]), ['and', '&'])) {
+                if(strlen($nameParts[1]) == 1){
+                    $person['initial'] =   $nameParts[1];
+                }
+                else{
+                    $person['first_name'] = $nameParts[1];
+                }
             }
         }
+        if($numParts == 3) {
+            $person['last_name'] = $nameParts[2];
+        }
+        if ($numParts > 3) {
+                // Check if the third part is "and" or "& or MR or Miss or MS or MRS"
+                if (!in_array(strtolower($nameParts[3]), ['and', '&','Mr','Mrs','Miss','Ms'])) {
+                    $person['last_name'] = $nameParts[3];
+                }
+            }
+
 
         return $person;
     }
